@@ -1,0 +1,185 @@
+# Flightdeck  要件定義書（Chrome 拡張機能）
+
+最終更新: 2025-10-23 /
+
+---
+
+## 1. 目的・背景
+
+* ブラウジング中に **Shiftキー2連打**でミニランチャーを起動し、**1〜数文字のホットキー**で所定のサイトを開く/検索する Chrome 拡張機能を提供する。
+* 選択中テキストを検索語として URL に差し込み、情報探索時間を短縮する。
+
+## 2. スコープ
+
+* Chrome (Manifest V3) 向け拡張機能。
+* 対象ページ: 一般的な https/http ページ。`chrome://` や Chrome Web Store 等、コンテンツスクリプト非対応ページは対象外。
+
+## 3. 用語定義
+
+* **ランチャー**: 画面上に表示されるオーバーレイUI。登録済みショートカットの一覧とヒントを表示。
+* **キー/ホットキー**: ランチャー表示中に押す 1〜n 文字の入力。対応URLに遷移。
+* **URLテンプレート**: `{{q}}` を検索語に置換するURL。未選択時は空文字またはトップへ。
+
+## 4. ユーザーストーリー
+
+* **U1**: 開発者として、文章中の語を素早く各種サイトで横断検索したい。
+* **U2**: マウス操作を最小化し、キーボードだけで検索サイトを切り替えたい。
+* **U3**: 自分好みのサイトとキー割り当てを後から簡単に編集・保存したい。
+
+## 5. 機能要件
+
+### 5.1 ランチャー起動/終了
+
+* **F-01**: 任意ページで **Shift を 350ms 以内に2回**押下するとランチャー起動。
+* **F-02**: ランチャー表示中に `Esc` で閉じる。✕ボタンでも閉じる。
+* **F-03**: ランチャー表示時はキー入力をフックし、サイトショートカット発火を最優先（ページ側ショートカット衝突を低減）。
+
+### 5.2 キーマッピングと動作
+
+* **F-10**: 下表の初期マッピングを保持（大小文字は区別しない前提）。
+* **F-11**: 入力文字列が一致したら新規タブでURLを開く。
+* **F-13**: 一致が無い場合は何もしない。前方一致が1件のみならそれを実行（UX向上）。
+
+### 5.3 選択テキスト連携
+
+* **F-20**: ページ上の選択テキストを取得し、URLテンプレート中の `{{q}}` に **URLエンコード**して差し込み。
+* **F-21**: 選択テキストが無い場合は、`{{q}}` を空として展開（結果としてトップまたは空検索）。
+
+### 5.4 設定（オプションページ）
+
+* **F-30**: キー・ラベル・URLテンプレートを一覧表示・編集・追加・削除できる。
+* **F-31**: 保存は `chrome.storage.sync` に反映。複数端末で同期可能。
+* **F-32**: `{{q}}` の説明とサンプルを表記（プレースホルダ説明）。
+
+### 5.5 既定のキーマッピング（初期値）
+
+| キー  | ラベル            | URLテンプレート                                                             | 備考                            |
+| --- | -------------- | --------------------------------------------------------------------- | ----------------------------- |
+| `5` | 5ちゃんねる         | `https://find.5ch.net/search?q={{q}}`                                 | 検索                            |
+| `y` | YouTube        | `https://www.youtube.com/results?search_query={{q}}`                  | 検索                            |
+| `a` | Amazon         | `https://www.amazon.co.jp/s?k={{q}}`                                  | 検索                            |
+| `r` | Reddit         | `https://www.reddit.com/search/?q={{q}}`                              | 検索                            |
+| `t` | Google翻訳       | `https://translate.google.com/?sl=auto&tl=ja&text={{q}}&op=translate` | 翻訳（auto→ja）                   |
+| `g` | Google         | `https://www.google.com/search?q={{q}}`                               | 検索                            |
+| `x` | X              | `https://x.com/search?q={{q}}`                                        | 検索                            |
+| `k` | 価格.com         | `https://kakaku.com/search_results/{{q}}/`                            | 検索                            |
+| `w` | Wikipedia      | `https://ja.wikipedia.org/wiki/Special:Search?search={{q}}`           | 検索                            |
+| `m` | Google Map     | `https://www.google.com/maps/search/{{q}}`                            | 検索                            |
+| `d` | DeepL          | `https://www.deepl.com/translator#auto/ja/{{q}}`                      | 翻訳（auto→ja）                   |
+| `S` | Google Scholar | `https://scholar.google.com/scholar?hl=ja&q={{q}}`                    | *大小区別なしで `s` 入力も Scholar に割当* |
+| `i` | Google 画像      | `https://www.google.com/search?tbm=isch&q={{q}}`                      | 画像検索                          |
+| `q` | Qiita          | `https://qiita.com/search?q={{q}}`                                    | 検索                            |
+| `z` | Zenn           | `https://zenn.dev/search?q={{q}}`                                     | 検索                            |
+| `n` | Google ニュース    | `https://news.google.com/search?q={{q}}&hl=ja&gl=JP&ceid=JP:ja`       | ニュース                          |
+
+
+
+### 5.6 UI/UX
+
+* **F-40**: 画面上部にダークトーンのオーバーレイパネル（中央寄せ、角丸、ドロップシャドウ）。
+* **F-41**: 現在の選択テキスト（最大200字まで）をサマリ表示。
+* **F-42**: キーとラベルをグリッド（自動折返し）で表示、`<kbd>` 風のキー表現。
+* **F-43**: アクセシビリティ: フォーカス可能、`role="dialog"`、`aria-label` 付与。
+
+## 6. 非機能要件
+
+* **N-01 権限最小化**: `activeTab`, `tabs`, `storage`, `scripting`。`host_permissions: <all_urls>`。
+* **N-02 パフォーマンス**: ランチャーDOMは初期化時に 1 回生成。非表示時はイベント最小限。
+* **N-03 安全性/プライバシー**: 選択テキストのみ URL にエンコードして外部サイトへ。拡張側で外部送信/収集なし。
+* **N-04 互換性**: 最新安定版 Chrome（Windows/macOS/Linux）。将来の Manifest 変更には追随方針。
+* **N-05 国際化**: 既定は日本語UI。URLは日本ロケール優先（可能な範囲）。英語も用意
+
+## 7. 例外・制約
+
+* `chrome://`、Chrome Web Store、PDF ビューア、拡張がブロックされる特殊ページでは動作しない。
+* サイト固有のショートカットと衝突し得るため、**ランチャー表示中のみ**キーフックする設計。
+
+## 8. セキュリティ要件
+
+* DOM 生成要素は拡張名前空間の ID/クラスで衝突回避。
+* 文字列挿入はテキストノード/属性値として扱い、HTMLインジェクション防止。
+* URL 置換は `encodeURIComponent` を必須化。
+
+## 9. 設計方針（高レベル）
+
+* **MV3**: `background.js` を Service Worker とし、タブ生成/ストレージI/O担当。
+* **content.js**: 入力検知、選択テキスト取得、ランチャーUI、メッセージ送信。
+* **options.html/js**: マッピングのCRUD（sync保存）。
+* **styles.css**: ランチャーの軽量スタイル。
+
+## 10. 設定データモデル
+
+```json
+{
+  "keymaps": {
+    "g": { "label": "Google", "template": "https://www.google.com/search?q={{q}}", "search": true },
+    "S": { "label": "Google Scholar", "template": "https://scholar.google.com/scholar?hl=ja&q={{q}}", "search": true }
+    // ...ほか同様
+  }
+}
+```
+
+* `search` は `{{q}}` を含むかの派生フラグ（UI 表示用途）。
+* キーは保存時にそのまま保持。**判定は既定で大小区別しない**（`toLowerCase()`）。
+
+## 11. アクセシビリティ
+
+* `tabindex="-1"` のフォーカス移動、`Esc` で閉じる、コントラスト比確保。
+* スクリーンリーダ向けラベル付与。
+
+## 12. ログ/テレメトリ
+
+* 既定では**収集しない**。
+
+
+## 13. テスト計画（抜粋）
+
+* **T-01**: Shift 2回で必ず起動（300ms/350ms/500ms など境界検証）。
+* **T-02**: 各キーで正しい URL を生成（エンコード確認：空白/日本語/記号）。
+* **T-03**: 未選択時の挙動（トップ/空検索）を確認。
+* **T-04**: 大小区別しない入力（`S`/`s` で Scholar）。
+* **T-05**: 2文字キーの確定タイミング（500ms）。
+* **T-06**: オプション保存/再読込/端末同期。
+* **T-07**: 非対応ページで動作しないこと。
+* **T-08**: 競合ショートカットとの干渉がランチャー表示時に限定されること。
+
+## 14. 受け入れ基準（サンプル）
+
+* AC-01: 指定の既定マッピングで、選択テキストあり/なしの双方で正しいURLが開く。
+* AC-02: Shift×2 で 95% 以上の再現性で起動。
+* AC-03: ランチャー表示中 `g` 押下で Google 検索タブが開く（同様に全キー）。
+* AC-04: Scholar は `S`/`s` 入力で発火し、Stack Overflow は既定に含まれない。
+* AC-05: オプションでマッピング変更が永続化される。
+
+## 15. リリース計画
+
+* v0.1.0: 最小実装（既定マッピング/編集UI/Shift×2/選択テキスト差込）。
+* v0.2.0: 頻度学習による並び替え、複数プロファイル（仕事/趣味）。
+* v0.3.0: 大小文字の**区別モード**切替、サイト別の言語既定、キープロファイルのエクスポート/インポート。
+
+## 16. 将来拡張候補
+
+* サイト別の**`site:` 検索**テンプレ（例: `gq` → Google + `site:qiita.com`）。
+* **ショートカットの説明ツールチップ**、最近使った順のハイライト。
+* **ローカルショートカット**（ページ内スクロール/コピーなど）との共存プロファイル。
+
+## 付録A: URLテンプレート早見表（再掲）
+
+```
+5: https://find.5ch.net/search?q={{q}}
+y: https://www.youtube.com/results?search_query={{q}}
+a: https://www.amazon.co.jp/s?k={{q}}
+r: https://www.reddit.com/search/?q={{q}}
+t: https://translate.google.com/?sl=auto&tl=ja&text={{q}}&op=translate
+g: https://www.google.com/search?q={{q}}
+x: https://x.com/search?q={{q}}
+k: https://kakaku.com/search_results/{{q}}/
+w: https://ja.wikipedia.org/wiki/Special:Search?search={{q}}
+m: https://www.google.com/maps/search/{{q}}
+d: https://www.deepl.com/translator#auto/ja/{{q}}
+S/s: https://scholar.google.com/scholar?hl=ja&q={{q}}
+i: https://www.google.com/search?tbm=isch&q={{q}}
+q: https://qiita.com/search?q={{q}}
+z: https://zenn.dev/search?q={{q}}
+n: https://news.google.com/search?q={{q}}&hl=ja&gl=JP&ceid=JP:ja
+```
