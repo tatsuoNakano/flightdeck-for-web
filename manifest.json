@@ -1,0 +1,24 @@
+// manifest.json
+{
+  "manifest_version": 3,
+  "name": "Flightdeck for web",
+  "version": "0.1.0",
+  "description": "Shift×2でミニランチャー、1〜数文字で遷移/テキスト選択し,Shift×2でミニランチャー 1〜数文字で遷移+選択したテキストで検索+遷移",
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "permissions": ["activeTab", "tabs", "storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background/service-worker.js" },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["lib/url-template.js", "lib/storage.js", "content/ui.js", "content/content.js"],
+      "css": ["content/styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": { "page": "options/options.html", "open_in_tab": true }
+}

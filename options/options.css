@@ -1,0 +1,12 @@
+/* options/options.css */
+body { font: 14px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif; padding: 24px; }
+h1 { margin: 0 0 12px; }
+table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+th, td { border-bottom: 1px solid #ddd; padding: 8px; }
+input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px 8px; }
+.toolbar { display:flex; gap:8px; align-items:center; }
+.toolbar .tip { margin-left: auto; opacity: .7; }
+footer { margin-top: 16px; display:flex; align-items:center; gap: 12px; }
+button { padding: 6px 10px; border-radius: 8px; border: 1px solid #ccc; background: #f7f7f7; cursor:pointer; }
+button:hover { background: #efefef; }
+tr.removed { opacity: .4; text-decoration: line-through; }

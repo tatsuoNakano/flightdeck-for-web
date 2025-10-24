@@ -1,0 +1,20 @@
+
+{
+  "5": { "label": "5ちゃんねる", "template": "https://find.5ch.net/search?q={{q}}", "search": true },
+  "y": { "label": "YouTube", "template": "https://www.youtube.com/results?search_query={{q}}", "search": true },
+  "a": { "label": "Amazon", "template": "https://www.amazon.co.jp/s?k={{q}}", "search": true },
+  "r": { "label": "Reddit", "template": "https://www.reddit.com/search/?q={{q}}", "search": true },
+  "t": { "label": "Google翻訳", "template": "https://translate.google.com/?sl=auto&tl=ja&text={{q}}&op=translate", "search": true },
+  "g": { "label": "Google", "template": "https://www.google.com/search?q={{q}}", "search": true },
+  "h": { "label": "GitHub", "template": "https://github.com/search?q={{q}}", "search": true },
+  "x": { "label": "X", "template": "https://x.com/search?q={{q}}", "search": true },
+  "k": { "label": "価格.com", "template": "https://kakaku.com/search_results/{{q}}/", "search": true },
+  "w": { "label": "Wikipedia", "template": "https://ja.wikipedia.org/wiki/Special:Search?search={{q}}", "search": true },
+  "m": { "label": "Google Map", "template": "https://www.google.com/maps/search/{{q}}", "search": true },
+  "d": { "label": "DeepL", "template": "https://www.deepl.com/translator#auto/ja/{{q}}", "search": true },
+  "S": { "label": "Google Scholar", "template": "https://scholar.google.com/scholar?hl=ja&q={{q}}", "search": true },
+  "i": { "label": "Google 画像", "template": "https://www.google.com/search?tbm=isch&q={{q}}", "search": true },
+  "q": { "label": "Qiita", "template": "https://qiita.com/search?q={{q}}", "search": true },
+  "z": { "label": "Zenn", "template": "https://zenn.dev/search?q={{q}}", "search": true },
+  "n": { "label": "Google ニュース", "template": "https://news.google.com/search?q={{q}}&hl=ja&gl=JP&ceid=JP:ja", "search": true }
+}
